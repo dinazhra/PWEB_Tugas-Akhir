@@ -405,7 +405,10 @@ class CheckOutController extends Controller
         $totalPesanan    = $transactions->count();
         $totalProduk     = $transactions->sum(fn($trx) => $trx->items->sum('qty'));
 
-        $chartData = Transaction::selectRaw('MONTH(created_at) as bulan, SUM(total) as total')
+        $chartData = Transaction::selectRaw("
+            CAST(strftime('%m', created_at) AS INTEGER) as bulan,
+            SUM(total) as total
+        ")
             ->whereIn('status', $validStatus)
             ->groupBy('bulan')
             ->orderBy('bulan')
