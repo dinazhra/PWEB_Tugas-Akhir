@@ -396,40 +396,59 @@ class CheckOutController extends Controller
     {
         $validStatus = ['diproses', 'dikirim', 'selesai'];
 
-        $transactions = Transaction::with('user', 'items.pupuk')
+        $transactions = Transaction::with(['user', 'items.pupuk'])
             ->whereIn('status', $validStatus)
             ->latest()
             ->get();
 
         $totalPendapatan = $transactions->sum('total');
         $totalPesanan    = $transactions->count();
-        $totalProduk     = $transactions->sum(fn($trx) => $trx->items->sum('qty'));
+        $totalProduk     = $transactions->sum(function ($trx) {
+            return $trx->items->sum('qty');
+        });
 
+        // SQLITE COMPATIBLE
         $chartData = Transaction::selectRaw("
-            CAST(strftime('%m', created_at) AS INTEGER) as bulan,
-            SUM(total) as total
-        ")
+                CAST(strftime('%m', created_at) AS INTEGER) as bulan,
+                SUM(total) as total
+            ")
             ->whereIn('status', $validStatus)
-            ->groupBy('bulan')
-            ->orderBy('bulan')
+            ->groupByRaw("strftime('%m', created_at)")
+            ->orderByRaw("strftime('%m', created_at)")
             ->get();
 
         $namaBulan = [
-            1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',
-            7=>'Jul',8=>'Agu',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des',
+            1  => 'Jan',
+            2  => 'Feb',
+            3  => 'Mar',
+            4  => 'Apr',
+            5  => 'Mei',
+            6  => 'Jun',
+            7  => 'Jul',
+            8  => 'Agu',
+            9  => 'Sep',
+            10 => 'Okt',
+            11 => 'Nov',
+            12 => 'Des',
         ];
 
         $labels = [];
         $data   = [];
 
         foreach ($chartData as $item) {
-            $labels[] = $namaBulan[$item->bulan];
-            $data[]   = $item->total;
+            $bulan = (int) $item->bulan;
+
+            $labels[] = $namaBulan[$bulan] ?? $bulan;
+            $data[]   = (float) $item->total;
         }
 
         return view('admin.laporan', compact(
-            'transactions', 'totalPendapatan',
-            'totalPesanan', 'totalProduk', 'labels', 'data'
+            'transactions',
+            'totalPendapatan',
+            'totalPesanan',
+            'totalProduk',
+            'labels',
+            'data'
         ));
     }
 
