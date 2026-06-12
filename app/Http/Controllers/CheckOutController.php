@@ -386,7 +386,7 @@ class CheckOutController extends Controller
         return view('admin.pesanan', compact('transactions'));
     }
 
-    /*
+/*
     |--------------------------------------------------------------------------
     | LAPORAN ADMIN
     |--------------------------------------------------------------------------
@@ -407,14 +407,14 @@ class CheckOutController extends Controller
             return $trx->items->sum('qty');
         });
 
-        // SQLITE COMPATIBLE
-        $chartData = Transaction::selectRaw("
-                CAST(strftime('%m', created_at) AS INTEGER) as bulan,
-                SUM(total) as total
-            ")
+        // MYSQL COMPATIBLE
+        $chartData = Transaction::selectRaw(
+                'MONTH(created_at) as bulan,
+                SUM(total) as total'
+            )
             ->whereIn('status', $validStatus)
-            ->groupByRaw("strftime('%m', created_at)")
-            ->orderByRaw("strftime('%m', created_at)")
+            ->groupBy('bulan')
+            ->orderBy('bulan')
             ->get();
 
         $namaBulan = [
