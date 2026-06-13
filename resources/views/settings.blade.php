@@ -303,7 +303,7 @@ html.dark .toast{ background:#172E1E;border-color:#265C32;color:#6EE7A0; }
 <script>
 (function () {
 
-    // ── Cookie helpers (didefinisikan di dalam IIFE supaya pasti tersedia) ──
+    // ── Cookie helpers
     function getCookie(name) {
         var value = '; ' + document.cookie;
         var parts = value.split('; ' + name + '=');
