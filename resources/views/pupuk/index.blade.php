@@ -543,28 +543,27 @@
 </div>
 
 <script>
-const searchInput = document.getElementById('live-search');
-const container   = document.getElementById('produk-container');
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('live-search');
+    const container   = document.getElementById('produk-container');
 
-searchInput.addEventListener('input', function () {
-    const keyword = this.value.trim();
+    searchInput.addEventListener('input', function () {
+        const keyword = this.value.trim();
 
-    // Kalau input kosong, reload halaman biar tampil semua produk lagi
-    if (keyword === '') {
-        location.reload();
-        return;
-    }
-
-    fetch(`/pupuk-search?search=${encodeURIComponent(keyword)}`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        if (keyword === '') {
+            location.reload();
+            return;
         }
-    })
-    .then(r => r.text())
-    .then(html => {
-        container.innerHTML = html;
-    })
-    .catch(err => console.error(err));
+
+        fetch(`/pupuk-search?search=${encodeURIComponent(keyword)}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.text())
+        .then(html => {
+            container.innerHTML = html;
+        })
+        .catch(err => console.error(err));
+    });
 });
 </script>
 
